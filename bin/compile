@@ -148,7 +148,7 @@ if [ -e "$APP_SOURCE_DIR"/package.json ]; then
   npm install
 fi
 
-# Related to https://github.com/meteor/meteor/issues/2796 and 
+# Related to https://github.com/meteor/meteor/issues/2796 and
 # https://github.com/meteor/meteor/issues/2606.  Some packages only build their
 # assets at runtime, and thus they are not available for bundling unless meteor
 # has been launched.  To opt-in to this, set BUILDPACK_PRELAUNCH_METEOR=1.
@@ -170,8 +170,16 @@ rmdir $BUNDLE_DEST
 
 # Run npm install on the built slug; only for `--production` dependencies.
 if [ -e "$COMPILE_DIR"/app/programs/server/package.json ]; then
+  # now let's continue installing server deps
   cd "$COMPILE_DIR"/app/programs/server
   npm install --production
+
+  # FIX for simplesmtp
+  # @see https://github.com/meteor/meteor/issues/6529
+  echo "-----> FIXING old simplesmtp"
+  cd "$COMPILE_DIR"/app/programs/server/npm/node_modules/meteor/email
+  rm -rf node_modules/simplesmtp
+  npm install simplesmtp@0.3.34
 fi
 
 #
